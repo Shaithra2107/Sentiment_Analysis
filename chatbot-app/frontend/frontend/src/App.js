@@ -27,7 +27,12 @@ function App() {
       const data = await response.json();
 
       if (data.reply) {
-        const botMessage = { sender: "bot", text: data.reply };
+        // Store sentiment separately in the bot message
+        const botMessage = { 
+          sender: "bot", 
+          text: data.reply,
+          sentiment: data.sentiment
+        };
         setMessages((prev) => [...prev, botMessage]);
       } else {
         setMessages((prev) => [
@@ -55,6 +60,19 @@ function App() {
             className={`chat-message ${msg.sender === "user" ? "user" : "bot"}`}
           >
             <strong>{msg.sender === "user" ? "You" : "Bot"}:</strong> {msg.text}
+            {msg.sentiment && (
+              <div
+                className={`sentiment ${
+                  msg.sentiment.toLowerCase().includes("positive")
+                    ? "positive"
+                    : msg.sentiment.toLowerCase().includes("negative")
+                    ? "negative"
+                    : "neutral"
+                }`}
+              >
+                Sentiment: {msg.sentiment}
+              </div>
+            )}
           </div>
         ))}
         {loading && <div className="chat-message bot">Bot is typing...</div>}
@@ -66,8 +84,11 @@ function App() {
           placeholder="Type your message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          autoComplete="off"
         />
-        <button type="submit">Send</button>
+        <button type="submit" disabled={loading}>
+          Send
+        </button>
       </form>
     </div>
   );
